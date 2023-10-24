@@ -9,8 +9,84 @@ public:
     set<string> types;
 };
 
-
-
+// function to calculate the minimum flow
+void minimizeCashFlow(int numBanks,bank input[],unordered_map<string,int>& indexOf,int numTransactions,vector<vector<int>>& graph,int maxNumTypes){
+    
+    //Find net amount of each bank has
+    bank listOfNetAmounts[numBanks];
+    
+    for(int b=0;b<numBanks;b++){
+        listOfNetAmounts[b].name = input[b].name;
+        listOfNetAmounts[b].types = input[b].types;
+        
+        int amount = 0;
+        //incoming edges
+        //column travers
+        for(int i=0;i<numBanks;i++){
+            amount += (graph[i][b]);
+        }
+        
+        //outgoing edges
+        //row traverse
+        for(int j=0;j<numBanks;j++){
+            amount += ((-1) * graph[b][j]);
+        }
+        
+        listOfNetAmounts[b].netAmount = amount;
+    }
+    
+    vector<vector<pair<int,string>>> ansGraph(numBanks,vector<pair<int,string>>(numBanks,{0,""}));//adjacency matrix
+    
+    
+    //find min and max net amount
+    int numZeroNetAmounts=0;
+    
+    for(int i=0;i<numBanks;i++){
+        if(listOfNetAmounts[i].netAmount == 0) numZeroNetAmounts++;
+    }
+    while(numZeroNetAmounts!=numBanks){
+        
+        int minIndex=getMinIndex(listOfNetAmounts, numBanks);
+        pair<int,string> maxAns = getMaxIndex(listOfNetAmounts, numBanks, minIndex,input,maxNumTypes);
+        
+        int maxIndex = maxAns.first;
+        
+        if(maxIndex == -1){
+            
+            (ansGraph[minIndex][0].first) += abs(listOfNetAmounts[minIndex].netAmount);
+            (ansGraph[minIndex][0].second) = *(input[minIndex].types.begin());
+            
+            int simpleMaxIndex = getSimpleMaxIndex(listOfNetAmounts, numBanks);
+            (ansGraph[0][simpleMaxIndex].first) += abs(listOfNetAmounts[minIndex].netAmount);
+            (ansGraph[0][simpleMaxIndex].second) = *(input[simpleMaxIndex].types.begin());
+            
+            listOfNetAmounts[simpleMaxIndex].netAmount += listOfNetAmounts[minIndex].netAmount;
+            listOfNetAmounts[minIndex].netAmount = 0;
+            
+            if(listOfNetAmounts[minIndex].netAmount == 0) numZeroNetAmounts++;
+            
+            if(listOfNetAmounts[simpleMaxIndex].netAmount == 0) numZeroNetAmounts++;
+            
+        }
+        else{
+            int transactionAmount = min(abs(listOfNetAmounts[minIndex].netAmount), listOfNetAmounts[maxIndex].netAmount);
+            
+            (ansGraph[minIndex][maxIndex].first) += (transactionAmount);
+            (ansGraph[minIndex][maxIndex].second) = maxAns.second;
+            
+            listOfNetAmounts[minIndex].netAmount += transactionAmount;
+            listOfNetAmounts[maxIndex].netAmount -= transactionAmount;
+            
+            if(listOfNetAmounts[minIndex].netAmount == 0) numZeroNetAmounts++;
+            
+            if(listOfNetAmounts[maxIndex].netAmount == 0) numZeroNetAmounts++;
+        }
+        
+    }
+    
+    printAns(ansGraph,numBanks,input);
+    // cout<<"HI\n";
+}
 // correct
 int main()
 {

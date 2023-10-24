@@ -9,6 +9,50 @@ public:
     set<string> types;
 };
 
+void printAns(vector<vector<pair<int,string>>> ansGraph, int numBanks,bank input[]){
+    
+    cout<<"\nThe transactions for minimum cash flow are as follows : \n\n";
+    for(int i=0;i<numBanks;i++){
+        for(int j=0;j<numBanks;j++){
+            
+            if(i==j) continue;
+            
+            if(ansGraph[i][j].first != 0 && ansGraph[j][i].first != 0){
+                
+                if(ansGraph[i][j].first == ansGraph[j][i].first){
+                    ansGraph[i][j].first=0;
+                    ansGraph[j][i].first=0;
+                }
+                else if(ansGraph[i][j].first > ansGraph[j][i].first){
+                    ansGraph[i][j].first -= ansGraph[j][i].first; 
+                    ansGraph[j][i].first =0;
+                    
+                    cout<<input[i].name<<" pays Rs" << ansGraph[i][j].first<< "to "<<input[j].name<<" via "<<ansGraph[i][j].second<<endl;
+                }
+                else{
+                    ansGraph[j][i].first -= ansGraph[i][j].first;
+                    ansGraph[i][j].first = 0;
+                    
+                    cout<<input[j].name<<" pays Rs "<< ansGraph[j][i].first<<" to "<<input[i].name<<" via "<<ansGraph[j][i].second<<endl;
+                    
+                }
+            }
+            else if(ansGraph[i][j].first != 0){
+                cout<<input[i].name<<" pays Rs "<<ansGraph[i][j].first<<" to "<<input[j].name<<" via "<<ansGraph[i][j].second<<endl;
+                
+            }
+            else if(ansGraph[j][i].first != 0){
+                cout<<input[j].name<<" pays Rs "<<ansGraph[j][i].first<<" to "<<input[i].name<<" via "<<ansGraph[j][i].second<<endl;
+                
+            }
+            
+            ansGraph[i][j].first = 0;
+            ansGraph[j][i].first = 0;
+        }
+    }
+    cout<<"\n";
+}
+
 // function to calculate the minimum flow
 void minimizeCashFlow(int numBanks,bank input[],unordered_map<string,int>& indexOf,int numTransactions,vector<vector<int>>& graph,int maxNumTypes){
     

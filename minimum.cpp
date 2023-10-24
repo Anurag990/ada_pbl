@@ -9,6 +9,33 @@ public:
     set<string> types;
 };
 
+pair<int,string> getMaxIndex(bank listOfNetAmounts[],int numBanks,int minIndex,bank input[],int maxNumTypes){
+    int max=INT_MIN;
+    int maxIndex=-1;
+    string matchingType;
+    
+    for(int i=0;i<numBanks;i++){
+        if(listOfNetAmounts[i].netAmount == 0) continue;
+        
+        if(listOfNetAmounts[i].netAmount < 0) continue;
+        
+        //TODO 
+        //see complexity of intersection
+        
+        vector<string> v(maxNumTypes);
+        vector<string>::iterator ls=set_intersection(listOfNetAmounts[minIndex].types.begin(),listOfNetAmounts[minIndex].types.end(), listOfNetAmounts[i].types.begin(),listOfNetAmounts[i].types.end(), v.begin());
+        
+        if((ls-v.begin())!=0 && max<listOfNetAmounts[i].netAmount ){
+            max=listOfNetAmounts[i].netAmount;
+            maxIndex=i;
+            matchingType = *(v.begin());
+        } 
+    }
+    
+    //if there is NO such max which has a common type with any remaining banks then maxIndex has -1
+    // also return the common payment type
+    return make_pair(maxIndex,matchingType);
+}
 void printAns(vector<vector<pair<int,string>>> ansGraph, int numBanks,bank input[]){
     
     cout<<"\nThe transactions for minimum cash flow are as follows : \n\n";
